@@ -1,0 +1,262 @@
+<title>Emergency Q — Trello Board</title>
+<style>
+  :root{
+    --board:#0d3a5c; --board2:#0a2c46;
+    --list:#f1f2f4; --card:#ffffff; --ink:#172b4d; --ink2:#5e6c84;
+    --line:#dfe1e6; --shadow:0 1px 0 rgba(9,30,66,.15),0 0 1px rgba(9,30,66,.1);
+    --lbl-plan:#7048b6; --lbl-v1:#00875a; --lbl-v2:#0079bf; --lbl-v3:#ff991f;
+    --lbl-v4:#eb5a46; --lbl-v5:#00c7e5; --lbl-doc:#8993a4; --lbl-test:#f2d600;
+    --font:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);
+    background:linear-gradient(135deg,var(--board),var(--board2));
+    min-height:100vh;color:var(--ink)}
+  /* ---- Board top bar ---- */
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 18px;
+    background:rgba(0,0,0,.28);backdrop-filter:blur(4px)}
+  .board-title{color:#fff;font-size:18px;font-weight:700;letter-spacing:.2px}
+  .board-sub{color:#cfe0ee;font-size:12.5px;font-weight:500}
+  .spacer{flex:1}
+  .chip{background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:600;
+    padding:5px 11px;border-radius:6px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#1565c0;color:#fff;
+    display:grid;place-items:center;font-size:12px;font-weight:700;
+    border:2px solid rgba(255,255,255,.6)}
+  /* ---- Lists row ---- */
+  .board{display:flex;gap:14px;padding:18px;overflow-x:auto;align-items:flex-start}
+  .list{background:var(--list);border-radius:12px;width:274px;flex:0 0 auto;
+    padding:8px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+  .list-head{display:flex;align-items:center;justify-content:space-between;
+    padding:6px 8px 8px}
+  .list-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .count{background:#e4e6ea;color:var(--ink2);font-size:11px;font-weight:700;
+    border-radius:20px;padding:1px 8px;min-width:22px;text-align:center}
+  .cards{display:flex;flex-direction:column;gap:9px}
+  .card{background:var(--card);border-radius:9px;padding:9px 10px 10px;
+    box-shadow:var(--shadow);border:1px solid rgba(9,30,66,.04)}
+  .labels{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+  .lab{height:8px;width:38px;border-radius:4px}
+  .card-title{font-size:13.2px;line-height:1.35;font-weight:500;color:var(--ink)}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;
+    color:var(--ink2);font-weight:600}
+  .badge.due{background:#e6fcf1;color:#0a7a4f;padding:2px 6px;border-radius:5px}
+  .badge.due.warn{background:#fff7e6;color:#a86a00}
+  .mini-av{width:22px;height:22px;border-radius:50%;background:#5e6c84;color:#fff;
+    display:grid;place-items:center;font-size:9.5px;font-weight:700;margin-left:auto}
+  .add{color:var(--ink2);font-size:13px;font-weight:600;padding:8px;cursor:default}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;padding:6px 20px 22px}
+  .leg{display:flex;align-items:center;gap:7px;color:#e7eff7;font-size:12px;font-weight:600}
+  .leg .lab{width:26px}
+  svg{display:block}
+</style>
+
+<div class="topbar">
+  <div>
+    <div class="board-title">Emergency Q — WaitSmart NZ</div>
+    <div class="board-sub">Level 3 DigiTech &nbsp;·&nbsp; AS91906 / AS91907 &nbsp;·&nbsp; Agile / Kanban</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="chip">📋 Board</span>
+  <span class="chip">⚡ Agile</span>
+  <div class="avatar">KR</div>
+</div>
+
+<div class="board">
+
+  <!-- DONE -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">✅ Done</span><span class="count">5</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-plan)"></span></div>
+        <div class="card-title">Choose planning tool &amp; set up Trello board</div>
+        <div class="badges"><span class="badge">🗓 Term 3 · Wk 1</span><span class="badge">☑ 2/2</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-plan)"></span></div>
+        <div class="card-title">Write full project task list &amp; milestones</div>
+        <div class="badges"><span class="badge">☑ 6/6</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Define purpose, problem &amp; end users</div>
+        <div class="badges"><span class="badge">📝</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Link outcome to inquiry (WaitSmart NZ proposal)</div>
+        <div class="badges"><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-plan)"></span></div>
+        <div class="card-title">Justify language &amp; tools (Python / Tkinter / VS Code / GitHub)</div>
+        <div class="badges"><span class="badge">📝</span><div class="mini-av">KR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNING & SETUP -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">🗂 Planning &amp; Setup</span><span class="count">6</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Software requirements &amp; dependencies list</div>
+        <div class="badges"><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">List complex techniques &amp; complex processes</div>
+        <div class="badges"><span class="badge">☑ 2/6</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Relevant implications — describe &amp; explain</div>
+        <div class="badges"><span class="badge">☑ 4/7</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Create GitHub repo &amp; first commit</div>
+        <div class="badges"><span class="badge due">🗓 Wk 2</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Figma wireframe — Version 1 (annotated)</div>
+        <div class="badges"><span class="badge">🎨</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Draw.io flowchart + pseudocode — V1 search</div>
+        <div class="badges"><span class="badge">📐</span><div class="mini-av">KR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TO DO (V1) -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">📝 To Do — Version 1</span><span class="count">5</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Build main window &amp; title header (Tkinter)</div>
+        <div class="badges"><span class="badge due">🗓 Wk 2</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Add hospital data set (list of dictionaries)</div>
+        <div class="badges"><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Scrollable hospital Listbox</div>
+        <div class="badges"><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Live search filter (case-insensitive)</div>
+        <div class="badges"><span class="badge">⭐ Key</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Detail panel — name / type / wait / phone</div>
+        <div class="badges"><div class="mini-av">KR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN PROGRESS -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">🔧 In Progress</span><span class="count">2</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v1)"></span></div>
+        <div class="card-title">Annotate Version 1 wireframe with component notes</div>
+        <div class="badges"><span class="badge">🎨</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Methodology write-up (iterative / Agile approach)</div>
+        <div class="badges"><span class="badge">📝</span><div class="mini-av">KR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTING & FEEDBACK -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">🧪 Testing &amp; Feedback</span><span class="count">3</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-test)"></span></div>
+        <div class="card-title">V1 component testing table — valid &amp; invalid</div>
+        <div class="badges"><span class="badge">☑ 0/4</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-test)"></span></div>
+        <div class="card-title">Collect feedback — SH1 &amp; SH2</div>
+        <div class="badges"><span class="badge due warn">🗓 Wk 3</span><div class="mini-av">KR</div></div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-test)"></span></div>
+        <div class="card-title">Teacher feedback on Version 1</div>
+        <div class="badges"><span class="badge due warn">🗓 Wk 3</span><div class="mini-av">KR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKLOG (LATER VERSIONS) -->
+  <div class="list">
+    <div class="list-head"><span class="list-name">📥 Backlog — V2–V5</span><span class="count">9</span></div>
+    <div class="cards">
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v2)"></span></div>
+        <div class="card-title">V2 · Refactor to OOP — App class (tk.Tk)</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v2)"></span></div>
+        <div class="card-title">V2 · Read suburbs from file (persistent storage)</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v2)"></span></div>
+        <div class="card-title">V2 · Haversine distance sort (closest → furthest)</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v2)"></span></div>
+        <div class="card-title">V2 · Colour-coded wait cards (green/amber/red)</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v3)"></span></div>
+        <div class="card-title">V3 · Interactive map (tkintermapview library)</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v4)"></span></div>
+        <div class="card-title">V4 · Queue data structure — recently-viewed EDs</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-v5)"></span></div>
+        <div class="card-title">V5 · Robustness, named constants &amp; final polish</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Comparative GUI chart across all 5 versions</div>
+      </div>
+      <div class="card">
+        <div class="labels"><span class="lab" style="background:var(--lbl-doc)"></span></div>
+        <div class="card-title">Fitness-for-purpose &amp; final evaluation</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <span class="leg"><span class="lab" style="background:var(--lbl-plan)"></span>Planning</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-v1)"></span>Version 1</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-v2)"></span>Version 2</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-v3)"></span>Version 3</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-v4)"></span>Version 4</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-v5)"></span>Version 5</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-test)"></span>Testing</span>
+  <span class="leg"><span class="lab" style="background:var(--lbl-doc)"></span>Documentation</span>
+</div>

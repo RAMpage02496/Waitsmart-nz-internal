@@ -1,0 +1,190 @@
+<title>Emergency Q — Version 1 Wireframe</title>
+<style>
+  :root{
+    --paper:#eef1f4; --grid:#dde3ea; --ink:#25313f; --ink2:#5b6b7c;
+    --line:#8 da; --stroke:#9aa7b5; --fill:#ffffff; --fill2:#f4f6f9;
+    --accent:#1565c0; --accent-soft:#dbe8f7; --pin:#1565c0;
+    --green:#00a152; --amber:#e08e00; --red:#e03a2f;
+    --mono:'Consolas','SF Mono',ui-monospace,monospace;
+    --sans:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);
+    background:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:26px 26px;padding:26px}
+  header{max-width:1120px;margin:0 auto 22px;display:flex;align-items:flex-end;
+    justify-content:space-between;gap:20px;flex-wrap:wrap}
+  h1{font-size:22px;margin:0;letter-spacing:.2px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:5px}
+  .meta{font-size:12.5px;color:var(--ink2);font-family:var(--mono)}
+  .stamp{border:1.5px dashed var(--stroke);border-radius:8px;padding:7px 12px;
+    font-family:var(--mono);font-size:11.5px;color:var(--ink2);text-align:right;line-height:1.5}
+  .layout{max-width:1120px;margin:0 auto;display:grid;
+    grid-template-columns:minmax(320px,440px) 1fr;gap:34px;align-items:start}
+
+  /* ---- Window mock ---- */
+  .frame{background:var(--fill);border:2px solid var(--ink);border-radius:12px;
+    box-shadow:0 18px 40px rgba(20,40,70,.16);overflow:hidden}
+  .titlebar{background:var(--ink);color:#fff;display:flex;align-items:center;
+    gap:8px;padding:8px 12px;font-size:12.5px}
+  .dots{display:flex;gap:6px}.dot{width:11px;height:11px;border-radius:50%;background:#5b6b7c}
+  .title-t{font-weight:600;letter-spacing:.2px}
+  .win{padding:18px 18px 20px}
+  .apptitle{text-align:center;font-size:17px;font-weight:800;color:var(--ink);
+    padding:6px 0 14px}
+  .wf-label{font-family:var(--mono);font-size:11px;color:var(--ink2);margin:0 0 5px}
+  .searchrow{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+  .searchrow .tag{font-size:12.5px;color:var(--ink2);font-weight:600}
+  .field{flex:1;border:1.6px solid var(--stroke);border-radius:6px;background:var(--fill2);
+    padding:9px 10px;font-family:var(--mono);font-size:12px;color:var(--ink2)}
+  .listbox{border:1.6px solid var(--stroke);border-radius:6px;background:var(--fill2);
+    height:206px;overflow:hidden;position:relative}
+  .row{display:flex;align-items:center;justify-content:space-between;
+    padding:9px 30px 9px 12px;border-bottom:1px dashed var(--grid);font-size:12.5px}
+  .row.sel{background:var(--accent-soft);border-left:3px solid var(--accent)}
+  .row .status{width:9px;height:9px;border-radius:50%}
+  .scroll{position:absolute;right:5px;top:8px;bottom:8px;width:7px;border-radius:4px;
+    background:#cfd8e2}
+  .scroll::after{content:"";position:absolute;left:0;right:0;top:0;height:46px;
+    border-radius:4px;background:var(--stroke)}
+  .detail{margin-top:14px;border:1.6px solid var(--stroke);border-radius:8px;
+    padding:12px 14px 14px;background:var(--fill)}
+  .detail .cap{position:relative;top:-22px;left:2px;background:var(--fill);display:inline-block;
+    padding:0 6px;font-size:11.5px;font-weight:700;color:var(--ink2)}
+  .detail h3{margin:-14px 0 8px;font-size:15px;color:var(--accent)}
+  .kv{font-size:12.5px;color:var(--ink2);margin:4px 0;font-family:var(--mono)}
+  .pin{position:absolute;width:23px;height:23px;border-radius:50%;background:var(--pin);
+    color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;
+    box-shadow:0 2px 6px rgba(21,101,192,.5);z-index:3}
+  .rel{position:relative}
+
+  /* ---- Annotations ---- */
+  .notes{display:flex;flex-direction:column;gap:13px}
+  .intro{font-size:13.5px;line-height:1.6;color:var(--ink2);margin:0 0 4px}
+  .note{display:flex;gap:12px;background:var(--fill);border:1px solid var(--grid);
+    border-left:3px solid var(--accent);border-radius:9px;padding:12px 14px}
+  .num{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--accent);
+    color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center}
+  .note h4{margin:2px 0 4px;font-size:13.5px;color:var(--ink)}
+  .note p{margin:0;font-size:12.7px;line-height:1.5;color:var(--ink2)}
+  .note code{font-family:var(--mono);font-size:11.5px;background:var(--fill2);
+    padding:1px 5px;border-radius:4px;color:var(--accent)}
+  .keyline{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;
+    font-size:11.5px;color:var(--ink2);font-family:var(--mono)}
+  .keyline span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:50%}
+  @media(max-width:840px){.layout{grid-template-columns:1fr}}
+</style>
+
+<header>
+  <div>
+    <div class="eyebrow">Figma · Low-fidelity wireframe</div>
+    <h1>Emergency Q — Version 1 GUI Wireframe</h1>
+  </div>
+  <div class="stamp">
+    PROJECT · WaitSmart NZ<br>
+    STANDARD · AS91906 / 91907<br>
+    ITERATION · 1 of 5 &nbsp;·&nbsp; ~400 × 500 px
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ===== WINDOW MOCK ===== -->
+  <div class="rel">
+    <div class="pin" style="top:70px;left:-11px">1</div>
+    <div class="pin" style="top:150px;left:-11px">2</div>
+    <div class="pin" style="top:250px;left:-11px">3</div>
+    <div class="pin" style="top:470px;left:-11px">4</div>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <span class="title-t">Emergency Q — Version 1</span>
+      </div>
+      <div class="win">
+        <div class="apptitle">Emergency Q Prototype</div>
+
+        <div class="searchrow">
+          <span class="tag">Search:</span>
+          <div class="field">north…&nbsp;|</div>
+        </div>
+
+        <p class="wf-label">// hospital list — filtered live</p>
+        <div class="listbox">
+          <div class="row"><span>Auckland City Hospital (Public)</span><span class="status" style="background:var(--green)"></span></div>
+          <div class="row sel"><span>North Shore Hospital (Public)</span><span class="status" style="background:var(--green)"></span></div>
+          <div class="row"><span>Middlemore Hospital (Public)</span><span class="status" style="background:var(--red)"></span></div>
+          <div class="row"><span>Waitakere Hospital (Public)</span><span class="status" style="background:var(--amber)"></span></div>
+          <div class="row"><span>Starship Children's (Public)</span><span class="status" style="background:var(--green)"></span></div>
+          <div class="row"><span>Southern Cross (Private)</span><span class="status" style="background:var(--green)"></span></div>
+          <div class="scroll"></div>
+        </div>
+
+        <div class="detail">
+          <span class="cap">Selected Hospital Info</span>
+          <h3>North Shore Hospital</h3>
+          <div class="kv">Type: Public</div>
+          <div class="kv">Wait Time: 30 min</div>
+          <div class="kv">Phone: 09 486 8900</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ANNOTATIONS ===== -->
+  <div class="notes">
+    <p class="intro">Version 1 proves the core interaction — <strong>list, search, select, view detail</strong> —
+      before distance sorting, live updates or a map are added. Numbered pins map each component to the
+      code that will build it.</p>
+
+    <div class="note">
+      <div class="num">1</div>
+      <div>
+        <h4>Title header</h4>
+        <p>A bold <code>tk.Label</code> at the top identifies the app. Static text only — sets the visual
+          anchor for every later version.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="num">2</div>
+      <div>
+        <h4>Search bar — live filter <span style="font-weight:600;color:var(--accent)">(key component)</span></h4>
+        <p>A <code>tk.Entry</code> bound to <code>&lt;KeyRelease&gt;</code>. On each keystroke,
+          <code>update_list()</code> rebuilds the list showing only hospitals whose name contains the typed
+          text (case-insensitive). This is the first real logic and the pattern the V2 distance-sort extends.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="num">3</div>
+      <div>
+        <h4>Hospital list + scrollbar</h4>
+        <p>A scrollable <code>tk.Listbox</code> filled by iterating the <code>HOSPITALS</code> list of
+          dictionaries. Selecting a row fires <code>on_select()</code>. The colour dot previews the
+          green/amber/red wait status that becomes central in Version 2.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="num">4</div>
+      <div>
+        <h4>Selected hospital detail panel</h4>
+        <p>A <code>tk.LabelFrame</code> holding four labels — name, type, wait time and phone — updated by
+          <code>on_select()</code> for the highlighted hospital. Gives the user the full record without
+          leaving the screen.</p>
+      </div>
+    </div>
+
+    <div class="keyline">
+      <span><span class="sw" style="background:var(--green)"></span>&lt; 30 min</span>
+      <span><span class="sw" style="background:var(--amber)"></span>30–90 min</span>
+      <span><span class="sw" style="background:var(--red)"></span>&gt; 90 min</span>
+      <span style="color:var(--ink2)">· wait-status key (introduced V2)</span>
+    </div>
+  </div>
+</div>
