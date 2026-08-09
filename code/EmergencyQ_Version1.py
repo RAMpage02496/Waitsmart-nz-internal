@@ -4,6 +4,12 @@ import tkinter as tk
 WHITE = "#FFFFFF"   # window background
 INK   = "#26313F"   # main dark text
 FONT  = "Segoe UI"  # the font used everywhere
+GREEN = "#00A152"   # short wait
+AMBER = "#E08E00"   # medium wait
+RED   = "#E03A2F"   # long wait
+
+SHORT  = 30   # under this many minutes = green
+MEDIUM = 90   # under this many minutes = amber; otherwise red
 
 root = tk.Tk()
 
@@ -22,6 +28,15 @@ HOSPITALS = [
 root.title("Emergency Q - Version 1")
 root.geometry("420x700")
 root.configure(bg=WHITE)
+
+# Decide the status colour for a wait time (in minutes)
+def wait_colour(minutes):
+    if minutes <= SHORT:
+        return GREEN
+    elif minutes < MEDIUM:
+        return AMBER
+    else:
+        return RED
 
 # Title heading at the top of the window
 title = tk.Label(root, text="Emergency Q Prototype",
