@@ -31,7 +31,7 @@ root.configure(bg=WHITE)
 
 # Decide the status colour for a wait time (in minutes)
 def wait_colour(minutes):
-    if minutes <= SHORT:
+    if minutes < SHORT:   # under 30 = green; exactly 30 = amber
         return GREEN
     elif minutes < MEDIUM:
         return AMBER
