@@ -43,18 +43,48 @@ title = tk.Label(root, text="Emergency Q Prototype",
                  bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
 title.pack(pady=(18, 14))
 
+# --- Search box ---
+search_var = tk.StringVar()
+search_entry = tk.Entry(root, textvariable=search_var, font=(FONT, 11),
+                        bg="#F1F4F8", fg=INK, relief="flat")
+search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
+
 # Frame that will hold the list of hospitals
 list_frame = tk.Frame(root, bg=WHITE)
 list_frame.pack(fill="x", padx=20, pady=(10, 0))
 
-# Show each hospital as a row in the list
-for h in HOSPITALS:
-    row = tk.Frame(list_frame, bg=WHITE)
-    row.pack(fill="x", pady=1)
-    label = tk.Label(row, text=h["name"] + " (" + h["type"] + ")",
-                     bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
-    label.pack(side="left", padx=10, pady=6)
-    dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
-    dot.pack(side="right", padx=10)
+# Show each hospital as a row in the list, optionally filtered by a search query
+def update_list(query=""):
+    # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
+    for widget in list_frame.winfo_children():
+        widget.destroy()
+
+    #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
+    query = query.lower()
+    matches = [h for h in HOSPITALS if query in h["name"].lower()]
+
+    if len(matches) == 0:
+        empty = tk.Label(list_frame, text="No hospitals found",
+                         bg=WHITE, fg="#8A94A6", font=(FONT, 10, "italic"))
+        empty.pack(pady=20)
+        return
+
+    for h in matches:
+        row = tk.Frame(list_frame, bg=WHITE) #This frame exists purely as a container that defines a horizontal strip
+        row.pack(fill="x", pady=1) # Stretches the frame horizontally to fill all available width in its parent
+        label = tk.Label(row, text=h["name"] + " (" + h["type"] + ")",
+                         bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
+        label.pack(side="left", padx=10, pady=6)
+        dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
+        dot.pack(side="right", padx=10)
+
+# Re-filter the list every time the search text changes
+def on_search(*args):
+    update_list(search_var.get())
+
+search_var.trace_add("write", on_search)
+
+# Show the full list at startup
+update_list()
 
 root.mainloop()
