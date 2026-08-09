@@ -54,5 +54,7 @@ for h in HOSPITALS:
     label = tk.Label(row, text=h["name"] + " (" + h["type"] + ")",
                      bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
     label.pack(side="left", padx=10, pady=6)
+    dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
+    dot.pack(side="right", padx=10)
 
 root.mainloop()
