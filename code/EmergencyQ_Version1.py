@@ -32,4 +32,12 @@ title.pack(pady=(18, 14))
 list_frame = tk.Frame(root, bg=WHITE)
 list_frame.pack(fill="x", padx=20, pady=(10, 0))
 
+# Show each hospital as a row in the list
+for h in HOSPITALS:
+    row = tk.Frame(list_frame, bg=WHITE)
+    row.pack(fill="x", pady=1)
+    label = tk.Label(row, text=h["name"] + " (" + h["type"] + ")",
+                     bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
+    label.pack(side="left", padx=10, pady=6)
+
 root.mainloop()
