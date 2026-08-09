@@ -28,4 +28,8 @@ title = tk.Label(root, text="Emergency Q Prototype",
                  bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
 title.pack(pady=(18, 14))
 
+# Frame that will hold the list of hospitals
+list_frame = tk.Frame(root, bg=WHITE)
+list_frame.pack(fill="x", padx=20, pady=(10, 0))
+
 root.mainloop()
