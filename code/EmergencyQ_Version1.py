@@ -77,8 +77,8 @@ def update_list(query=""):
         label.pack(side="left", padx=10, pady=6)
         dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
         dot.pack(side="right", padx=10)
-        row.bind("<Button-1>", lambda event, h=h: show_details(h))
-        label.bind("<Button-1>", lambda event, h=h: show_details(h))
+        row.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
+        label.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
 
 # Re-filter the list every time the search text changes
 def on_search(*args):
@@ -104,6 +104,18 @@ def show_details(hospital):
     details_info.config(text="Wait: " + str(hospital["wait"]) + " min\n"
                              + "Phone: " + hospital["phone"] + "\n"
                              + "Type: " + hospital["type"])
+
+# Remember which row frame is currently highlighted
+selected_row = None
+
+# Highlight the clicked row and show its details
+def select_row(hospital, row):
+    global selected_row
+    if selected_row is not None:
+        selected_row.config(bg=WHITE)
+    row.config(bg="#DCE6F5")
+    selected_row = row
+    show_details(hospital)
 
 # Show the full list at startup
 update_list()
