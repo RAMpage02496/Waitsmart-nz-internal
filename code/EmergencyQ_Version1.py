@@ -98,6 +98,13 @@ details_info = tk.Label(details_frame, text="",
                         bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
 details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
+# Fill the details panel with one hospital's information
+def show_details(hospital):
+    details_name.config(text=hospital["name"])
+    details_info.config(text="Wait: " + str(hospital["wait"]) + " min\n"
+                             + "Phone: " + hospital["phone"] + "\n"
+                             + "Type: " + hospital["type"])
+
 # Show the full list at startup
 update_list()
 
