@@ -77,12 +77,26 @@ def update_list(query=""):
         label.pack(side="left", padx=10, pady=6)
         dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
         dot.pack(side="right", padx=10)
+        row.bind("<Button-1>", lambda event: show_details(h))
+        label.bind("<Button-1>", lambda event: show_details(h))
 
 # Re-filter the list every time the search text changes
 def on_search(*args):
     update_list(search_var.get())
 
 search_var.trace_add("write", on_search)
+
+# --- Details panel (shows the selected hospital) ---
+details_frame = tk.Frame(root, bg="#F1F4F8")
+details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
+
+details_name = tk.Label(details_frame, text="Select a hospital",
+                        bg="#F1F4F8", fg=INK, font=(FONT, 12, "bold"))
+details_name.pack(anchor="w", padx=12, pady=(12, 2))
+
+details_info = tk.Label(details_frame, text="",
+                        bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
+details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
 # Show the full list at startup
 update_list()
