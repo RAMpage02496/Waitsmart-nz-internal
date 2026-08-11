@@ -77,8 +77,8 @@ def update_list(query=""):
         label.pack(side="left", padx=10, pady=6)
         dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
         dot.pack(side="right", padx=10)
-        row.bind("<Button-1>", lambda event: show_details(h))
-        label.bind("<Button-1>", lambda event: show_details(h))
+        row.bind("<Button-1>", lambda event, h=h: show_details(h))
+        label.bind("<Button-1>", lambda event, h=h: show_details(h))
 
 # Re-filter the list every time the search text changes
 def on_search(*args):
