@@ -55,6 +55,8 @@ list_frame.pack(fill="x", padx=20, pady=(10, 0))
 
 # Show each hospital as a row in the list, optionally filtered by a search query
 def update_list(query=""):
+    global selected_row
+    selected_row = None
     # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
     for widget in list_frame.winfo_children():
         widget.destroy()
