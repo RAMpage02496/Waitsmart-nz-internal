@@ -1,3 +1,11 @@
+"""
+Emergency Q - Version 1 (Basic Prototype)
+A simple Tkinter application to display Auckland's different hospital wait times.
+- Built to match the Version 1 wireframe.
+- Basic functionality: search, select, show details.
+- Standard library only, no external libraries.
+"""
+
 import tkinter as tk
 
 # Colours and settings (constants - set once, use everywhere)
@@ -43,7 +51,7 @@ title = tk.Label(root, text="Emergency Q Prototype",
                  bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
 title.pack(pady=(18, 14))
 
-# --- Search box ---
+# Search box
 search_var = tk.StringVar()
 search_entry = tk.Entry(root, textvariable=search_var, font=(FONT, 11),
                         bg="#F1F4F8", fg=INK, relief="flat")
@@ -52,6 +60,12 @@ search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
 # Frame that will hold the list of hospitals
 list_frame = tk.Frame(root, bg=WHITE)
 list_frame.pack(fill="x", padx=20, pady=(10, 0))
+
+# Colour legend (what the dots mean)
+legend = tk.Frame(root, bg=WHITE)
+legend.pack(fill="x", padx=20, pady=(4, 0))
+for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
+    tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
 
 # Show each hospital as a row in the list, optionally filtered by a search query
 def update_list(query=""):
@@ -91,7 +105,7 @@ def on_search(*args):
 
 search_var.trace_add("write", on_search)
 
-# --- Details panel (shows the selected hospital) ---
+# Details panel (shows the selected hospital)
 details_frame = tk.Frame(root, bg="#F1F4F8")
 details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
 
