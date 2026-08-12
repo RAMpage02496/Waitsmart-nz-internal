@@ -61,6 +61,10 @@ search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
 list_frame = tk.Frame(root, bg=WHITE)
 list_frame.pack(fill="x", padx=20, pady=(10, 0))
 
+# --- Result count ---
+count_label = tk.Label(root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
+count_label.pack(anchor="w", padx=22, pady=(6, 2))
+
 # Colour legend (what the dots mean)
 legend = tk.Frame(root, bg=WHITE)
 legend.pack(fill="x", padx=20, pady=(4, 0))
@@ -78,6 +82,7 @@ def update_list(query=""):
     #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
     query = query.lower()
     matches = [h for h in HOSPITALS if query in h["name"].lower()]
+    count_label.config(text="Showing " + str(len(matches)) + " hospitals")
 
     if len(matches) == 0:
         empty = tk.Label(list_frame, text="No hospitals found",
