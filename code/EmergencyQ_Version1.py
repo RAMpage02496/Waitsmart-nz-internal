@@ -79,6 +79,9 @@ def update_list(query=""):
         label.pack(side="left", padx=10, pady=6)
         dot = tk.Label(row, text="●", bg=WHITE, fg=wait_colour(h["wait"]), font=(FONT, 11))
         dot.pack(side="right", padx=10)
+        wait_lbl = tk.Label(row, text=str(h["wait"]) + " min",
+                            bg=WHITE, fg="#6B7686", font=(FONT, 9))
+        wait_lbl.pack(side="right", padx=(0, 4))
         row.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
         label.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
 
