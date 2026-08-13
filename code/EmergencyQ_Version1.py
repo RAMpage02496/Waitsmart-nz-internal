@@ -21,7 +21,7 @@ MEDIUM = 90   # under this many minutes = amber; otherwise red
 
 root = tk.Tk()
 
-# Hospital data - a list of dictionaries (one dictionary per hospital)
+# Hospital data - a list of dictionaries
 HOSPITALS = [
     {"name": "Auckland City Hospital",       "wait": 45,  "phone": "09 367 0000", "type": "Public"},
     {"name": "Middlemore Hospital",          "wait": 120, "phone": "09 276 0000", "type": "Public"},
