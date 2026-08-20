@@ -3,6 +3,11 @@ Emergency Q - Version 2
 """
 
 import tkinter as tk
+import os   # lets us work out file paths
+
+# The folder THIS .py file lives in. We build the data-file path from here so
+# hospitals.txt is always found, no matter which folder the program is run from.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Colours and settings (constants - set once, use everywhere)
 WHITE = "#FFFFFF"   # window background
@@ -64,112 +69,116 @@ def load_hospitals(filename):
     return hospitals
 
 
-root = tk.Tk()
+# The whole application, wrapped in a class. Data and widgets live on self.
+class App:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Emergency Q - Version 2")
+        self.root.geometry("420x700")
+        self.root.configure(bg=WHITE)
 
-# Hospital data - now loaded from the file instead of hard-coded into the main code
-HOSPITALS = load_hospitals("hospitals.txt")
+        # Hospital data - loaded from the file instead of hard-coded
+        self.hospitals = load_hospitals(os.path.join(BASE_DIR, "hospitals.txt"))
+        self.selected_row = None
+        self.search_var = tk.StringVar()
+
+        self.build_ui()
+        self.update_list()
+
+    # Build all the widgets
+    def build_ui(self):
+        title = tk.Label(self.root, text="Emergency Q Prototype",
+                         bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
+        title.pack(pady=(18, 14))
+
+        # Search box
+        search_entry = tk.Entry(self.root, textvariable=self.search_var, font=(FONT, 11),
+                                bg="#F1F4F8", fg=INK, relief="flat")
+        search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
+        self.search_var.trace_add("write", self.on_search)
+
+        # Frame that will hold the list of hospitals
+        self.list_frame = tk.Frame(self.root, bg=WHITE)
+        self.list_frame.pack(fill="x", padx=20, pady=(10, 0))
+
+        # Result count
+        self.count_label = tk.Label(self.root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
+        self.count_label.pack(anchor="w", padx=22, pady=(6, 2))
+
+        # Colour legend (what the dots mean)
+        legend = tk.Frame(self.root, bg=WHITE)
+        legend.pack(fill="x", padx=20, pady=(4, 0))
+        for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
+            tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
+
+        # Details panel (shows the selected hospital)
+        self.details_frame = tk.Frame(self.root, bg="#F1F4F8")
+        self.details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
+
+        self.details_name = tk.Label(self.details_frame, text="Select a hospital",
+                                     bg="#F1F4F8", fg=INK, font=(FONT, 12, "bold"))
+        self.details_name.pack(anchor="w", padx=12, pady=(12, 2))
+
+        self.details_info = tk.Label(self.details_frame, text="",
+                                     bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
+        self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
+
+    # Show each hospital as a row in the list, optionally filtered by a search query
+    def update_list(self, query=""):
+        self.selected_row = None
+        # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
+        for widget in self.list_frame.winfo_children():
+            widget.destroy()
+
+        #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
+        query = query.lower()
+        matches = [h for h in self.hospitals if query in h.name.lower()]
+        self.count_label.config(text="Showing " + str(len(matches)) + " hospitals")
+
+        if len(matches) == 0:
+            empty = tk.Label(self.list_frame, text="No hospitals found",
+                             bg=WHITE, fg="#8A94A6", font=(FONT, 10, "italic"))
+            empty.pack(pady=20)
+            return
+
+        for h in matches:
+            row = tk.Frame(self.list_frame, bg=WHITE) #This frame exists purely as a container that defines a horizontal strip
+            row.pack(fill="x", pady=1) # Stretches the frame horizontally to fill all available width in its parent
+            label = tk.Label(row, text=h.name + " (" + h.kind + ")",
+                             bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
+            label.pack(side="left", padx=10, pady=6)
+            dot = tk.Label(row, text="●", bg=WHITE, fg=h.status_colour(), font=(FONT, 11))
+            dot.pack(side="right", padx=10)
+            wait_lbl = tk.Label(row, text=str(h.wait) + " min",
+                                bg=WHITE, fg="#6B7686", font=(FONT, 9))
+            wait_lbl.pack(side="right", padx=(0, 4))
+            row.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
+            label.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
+
+    # Re-filter the list every time the search text changes
+    def on_search(self, *args):
+        self.update_list(self.search_var.get())
+
+    # Fill the details panel with one hospital's information
+    def show_details(self, hospital):
+        self.details_name.config(text=hospital.name)
+        self.details_info.config(text="Wait: " + str(hospital.wait) + " min\n"
+                                      + "Phone: " + hospital.phone + "\n"
+                                      + "Type: " + hospital.kind)
+
+    # Highlight the clicked row and show its details
+    def select_row(self, hospital, row):
+        if self.selected_row is not None:
+            self.selected_row.config(bg=WHITE)
+        row.config(bg="#DCE6F5")
+        self.selected_row = row
+        self.show_details(hospital)
+
+    def run(self):
+        self.root.mainloop()
 
 
-root.title("Emergency Q - Version 1")
-root.geometry("420x700")
-root.configure(bg=WHITE)
-
-# Title heading at the top of the window
-title = tk.Label(root, text="Emergency Q Prototype",
-                 bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
-title.pack(pady=(18, 14))
-
-# Search box
-search_var = tk.StringVar()
-search_entry = tk.Entry(root, textvariable=search_var, font=(FONT, 11),
-                        bg="#F1F4F8", fg=INK, relief="flat")
-search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
-
-# Frame that will hold the list of hospitals
-list_frame = tk.Frame(root, bg=WHITE)
-list_frame.pack(fill="x", padx=20, pady=(10, 0))
-
-# Result count
-count_label = tk.Label(root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
-count_label.pack(anchor="w", padx=22, pady=(6, 2))
-
-# Colour legend (what the dots mean)
-legend = tk.Frame(root, bg=WHITE)
-legend.pack(fill="x", padx=20, pady=(4, 0))
-for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
-    tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
-
-# Show each hospital as a row in the list, optionally filtered by a search query
-def update_list(query=""):
-    global selected_row
-    selected_row = None
-    # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
-    for widget in list_frame.winfo_children():
-        widget.destroy()
-
-    #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
-    query = query.lower()
-    matches = [h for h in HOSPITALS if query in h.name.lower()]
-    count_label.config(text="Showing " + str(len(matches)) + " hospitals")
-
-    if len(matches) == 0:
-        empty = tk.Label(list_frame, text="No hospitals found",
-                         bg=WHITE, fg="#8A94A6", font=(FONT, 10, "italic"))
-        empty.pack(pady=20)
-        return
-
-    for h in matches:
-        row = tk.Frame(list_frame, bg=WHITE) #This frame exists purely as a container that defines a horizontal strip
-        row.pack(fill="x", pady=1) # Stretches the frame horizontally to fill all available width in its parent
-        label = tk.Label(row, text=h.name + " (" + h.kind + ")",
-                         bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
-        label.pack(side="left", padx=10, pady=6)
-        dot = tk.Label(row, text="●", bg=WHITE, fg=h.status_colour(), font=(FONT, 11))
-        dot.pack(side="right", padx=10)
-        wait_lbl = tk.Label(row, text=str(h.wait) + " min",
-                            bg=WHITE, fg="#6B7686", font=(FONT, 9))
-        wait_lbl.pack(side="right", padx=(0, 4))
-        row.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
-        label.bind("<Button-1>", lambda event, hosp=h, r=row: select_row(hosp, r))
-
-# Re-filter the list every time the search text changes
-def on_search(*args):
-    update_list(search_var.get())
-
-search_var.trace_add("write", on_search)
-
-# Details panel (shows the selected hospital)
-details_frame = tk.Frame(root, bg="#F1F4F8")
-details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
-
-details_name = tk.Label(details_frame, text="Select a hospital",
-                        bg="#F1F4F8", fg=INK, font=(FONT, 12, "bold"))
-details_name.pack(anchor="w", padx=12, pady=(12, 2))
-
-details_info = tk.Label(details_frame, text="",
-                        bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
-details_info.pack(anchor="w", padx=12, pady=(0, 12))
-
-# Fill the details panel with one hospital's information
-def show_details(hospital):
-    details_name.config(text=hospital.name)
-    details_info.config(text="Wait: " + str(hospital.wait) + " min\n"
-                             + "Phone: " + hospital.phone + "\n"
-                             + "Type: " + hospital.kind)
-
-# Remember which row frame is currently highlighted
-selected_row = None
-
-# Highlight the clicked row and show its details
-def select_row(hospital, row):
-    global selected_row
-    if selected_row is not None:
-        selected_row.config(bg=WHITE)
-    row.config(bg="#DCE6F5")
-    selected_row = row
-    show_details(hospital)
-
-# Show the full list at startup
-update_list()
-
-root.mainloop()
+# Make the app and start it
+if __name__ == "__main__":
+    app = App()
+    app.run()
