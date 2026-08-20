@@ -81,6 +81,8 @@ class App:
         self.hospitals = load_hospitals(os.path.join(BASE_DIR, "hospitals.txt"))
         self.selected_row = None
         self.search_var = tk.StringVar()
+        self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
+
 
         self.build_ui()
         self.update_list()
@@ -96,6 +98,12 @@ class App:
                                 bg="#F1F4F8", fg=INK, relief="flat")
         search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
         self.search_var.trace_add("write", self.on_search)
+
+        # Sort toggle
+        sort_check = tk.Checkbutton(self.root, text="Sort by shortest wait first",
+                                    variable=self.sort_var, command=self.on_search,
+                                    bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
+        sort_check.pack(anchor="w", padx=18)
 
         # Frame that will hold the list of hospitals
         self.list_frame = tk.Frame(self.root, bg=WHITE)
@@ -133,6 +141,8 @@ class App:
         #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
         query = query.lower()
         matches = [h for h in self.hospitals if query in h.name.lower()]
+        if self.sort_var.get():
+            matches.sort(key=lambda h: h.wait,)
         self.count_label.config(text="Showing " + str(len(matches)) + " hospitals")
 
         if len(matches) == 0:
