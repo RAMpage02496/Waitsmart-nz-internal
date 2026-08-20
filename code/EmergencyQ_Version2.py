@@ -32,22 +32,37 @@ class Hospital:
         else:
             return RED
 
-# Read the data file and turn each line into a Hospital object
+# Read the data file and turn each line into a Hospital object, robust building so a missing file or a bad line won't crash the program (try and except, and skip bad lines).
 def load_hospitals(filename):
     hospitals = []
-    file = open(filename, "r", encoding="utf-8")
+
+    try:
+        file = open(filename, "r", encoding="utf-8")
+    except FileNotFoundError:
+        print("Could not find the data file:", filename)
+        return hospitals          # return an empty list so the app still opens
+
     for line in file:
-        line = line.strip()          # remove the newline and spare spaces
-        if line == "":               # skip blank lines
+        line = line.strip()
+        if line == "":
             continue
-        parts = line.split(",")      # ["Auckland City Hospital", "45", "09 367 0000", "Public"]
-        name  = parts[0]
-        wait  = int(parts[1])
-        phone = parts[2]
-        kind  = parts[3]
-        hospitals.append(Hospital(name, wait, phone, kind))
+
+        parts = line.split(",")
+        if len(parts) != 4:                       # every line must have all 4 fields
+            print("Skipping bad line (need 4 fields):", line)
+            continue
+
+        try:
+            wait = int(parts[1])
+        except ValueError:                        # the wait time wasn't a number
+            print("Skipping line with a bad wait time:", line)
+            continue
+
+        hospitals.append(Hospital(parts[0], wait, parts[2], parts[3]))
+
     file.close()
     return hospitals
+
 
 root = tk.Tk()
 
