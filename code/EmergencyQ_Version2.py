@@ -32,19 +32,27 @@ class Hospital:
         else:
             return RED
 
+# Read the data file and turn each line into a Hospital object
+def load_hospitals(filename):
+    hospitals = []
+    file = open(filename, "r", encoding="utf-8")
+    for line in file:
+        line = line.strip()          # remove the newline and spare spaces
+        if line == "":               # skip blank lines
+            continue
+        parts = line.split(",")      # ["Auckland City Hospital", "45", "09 367 0000", "Public"]
+        name  = parts[0]
+        wait  = int(parts[1])
+        phone = parts[2]
+        kind  = parts[3]
+        hospitals.append(Hospital(name, wait, phone, kind))
+    file.close()
+    return hospitals
+
 root = tk.Tk()
 
-# Hospital data - now a list of Hospital OBJECTS instead of dictionaries
-HOSPITALS = [
-    Hospital("Auckland City Hospital",       45,  "09 367 0000", "Public"),
-    Hospital("Middlemore Hospital",          120, "09 276 0000", "Public"),
-    Hospital("North Shore Hospital",         30,  "09 486 8900", "Public"),
-    Hospital("Waitakere Hospital",           80,  "09 839 0000", "Public"),
-    Hospital("Starship Children's Hospital", 15,  "09 367 0000", "Public"),
-    Hospital("Greenlane Clinical Centre",    10,  "09 638 9909", "Public"),
-    Hospital("Southern Cross Hospital",      5,   "09 623 8900", "Private"),
-    Hospital("Mercy Hospital Auckland",      15,  "09 623 3456", "Private"),
-]
+# Hospital data - now loaded from the file instead of hard-coded into the main code
+HOSPITALS = load_hospitals("hospitals.txt")
 
 
 root.title("Emergency Q - Version 1")
