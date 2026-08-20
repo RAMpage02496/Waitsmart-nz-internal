@@ -4,6 +4,7 @@ Emergency Q - Version 2
 
 import tkinter as tk
 import os   # lets us work out file paths
+import random   # for the live wait-time changes
 
 # The folder THIS .py file lives in. We build the data-file path from here so
 # hospitals.txt is always found, no matter which folder the program is run from.
@@ -86,6 +87,7 @@ class App:
 
         self.build_ui()
         self.update_list()
+        self.update_times()   # start the live wait-time updates
 
     # Build all the widgets
     def build_ui(self):
@@ -183,6 +185,13 @@ class App:
         row.config(bg="#DCE6F5")
         self.selected_row = row
         self.show_details(hospital)
+
+    # Every few seconds, nudge each hospital's wait a little to simulate a live feed
+    def update_times(self):
+        for h in self.hospitals:
+            h.wait = max(0, h.wait + random.randint(-6, 6))  # never below 0, drift the wait up or down a bit
+        self.update_list(self.search_var.get())          # refresh the list with the new times
+        self.root.after(3000, self.update_times)         # run again in 3 seconds
 
     def run(self):
         self.root.mainloop()
