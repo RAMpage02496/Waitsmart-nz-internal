@@ -23,11 +23,13 @@ MEDIUM = 90   # under this many minutes = amber; otherwise red
 
 # A single hospital. Using a class instead of a dictionary means each hospital carries its own data and its own behaviour, like status_colour().
 class Hospital:
-    def __init__(self, name, wait, phone, kind):
+    def __init__(self, name, wait, phone, kind, lat, lon):
         self.name = name
         self.wait = wait
         self.phone = phone
         self.kind = kind          # "Public" or "Private"
+        self.lat = lat           
+        self.lon = lon            
 
     # Work out this hospital's status colour from its own wait time
     def status_colour(self):
@@ -54,17 +56,19 @@ def load_hospitals(filename):
             continue
 
         parts = line.split(",")
-        if len(parts) != 4:                       # every line must have all 4 fields
-            print("Skipping bad line (need 4 fields):", line)
+        if len(parts) != 6:                       # every line must have all 6 fields
+            print("Skipping bad line (need 6 fields):", line)
             continue
 
         try:
             wait = int(parts[1])
+            lat  = float(parts[4])                # coordinates are decimals, so float
+            lon  = float(parts[5])                
         except ValueError:                        # the wait time wasn't a number
             print("Skipping line with a bad wait time:", line)
             continue
 
-        hospitals.append(Hospital(parts[0], wait, parts[2], parts[3]))
+        hospitals.append(Hospital(parts[0], wait, parts[2], parts[3], lat, lon))
 
     file.close()
     return hospitals
