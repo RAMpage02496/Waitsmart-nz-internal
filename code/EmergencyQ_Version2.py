@@ -5,6 +5,7 @@ Emergency Q - Version 2
 import tkinter as tk
 import os   # lets us work out file paths
 import random   # for the live wait-time changes
+import math   # for the distance calculation
 
 # The folder THIS .py file lives in. We build the data-file path from here so
 # hospitals.txt is always found, no matter which folder the program is run from.
@@ -39,6 +40,37 @@ class Hospital:
             return AMBER
         else:
             return RED
+
+# Distance in km between two points on Earth, using their latitude/longitude (Haversine formula)
+def distance_km(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth's radius in km
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    a = (math.sin(d_lat / 2) ** 2
+         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2)
+    return R * 2 * math.asin(math.sqrt(a))
+
+# Read the suburbs file into a dictionary: {suburb name: (lat, lon)}
+def load_suburbs(filename):
+    suburbs = {}
+    try:
+        file = open(filename, "r", encoding="utf-8")
+    except FileNotFoundError:
+        print("Could not find the suburbs file:", filename)
+        return suburbs
+    for line in file:
+        line = line.strip()
+        if line == "":
+            continue
+        parts = line.split(",")
+        if len(parts) != 3:
+            continue
+        try:
+            suburbs[parts[0]] = (float(parts[1]), float(parts[2]))
+        except ValueError:
+            continue
+    file.close()
+    return suburbs
 
 # Read the data file and turn each line into a Hospital object, robust building so a missing file or a bad line won't crash the program (try and except, and skip bad lines).
 def load_hospitals(filename):
@@ -84,6 +116,9 @@ class App:
 
         # Hospital data - loaded from the file instead of hard-coded
         self.hospitals = load_hospitals(os.path.join(BASE_DIR, "hospitals.txt"))
+        self.suburbs = load_suburbs(os.path.join(BASE_DIR, "suburbs.txt"))
+        self.user_location = None                        # (lat, lon) once a suburb is picked
+        self.location_var = tk.StringVar(value="(choose)")
         self.selected_row = None
         self.search_var = tk.StringVar()
         self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
@@ -110,6 +145,14 @@ class App:
                                     variable=self.sort_var, command=self.on_search,
                                     bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         sort_check.pack(anchor="w", padx=18)
+
+        # Location picker
+        loc_frame = tk.Frame(self.root, bg=WHITE)
+        loc_frame.pack(fill="x", padx=18, pady=(2, 0))
+        tk.Label(loc_frame, text="Your suburb:", bg=WHITE, fg=INK, font=(FONT, 9)).pack(side="left")
+        location_menu = tk.OptionMenu(loc_frame, self.location_var,
+                                      *self.suburbs.keys(), command=self.on_location)
+        location_menu.pack(side="left", padx=6)
 
         # Frame that will hold the list of hospitals
         self.list_frame = tk.Frame(self.root, bg=WHITE)
@@ -168,12 +211,23 @@ class App:
             wait_lbl = tk.Label(row, text=str(h.wait) + " min",
                                 bg=WHITE, fg="#6B7686", font=(FONT, 9))
             wait_lbl.pack(side="right", padx=(0, 4))
+            if self.user_location is not None:
+                ulat, ulon = self.user_location
+                km = distance_km(ulat, ulon, h.lat, h.lon)
+                dist_lbl = tk.Label(row, text=str(round(km, 1)) + " km",
+                                    bg=WHITE, fg="#3A7BD5", font=(FONT, 9))
+                dist_lbl.pack(side="right", padx=(0, 4))
             row.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
             label.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
 
     # Re-filter the list every time the search text changes
     def on_search(self, *args):
         self.update_list(self.search_var.get())
+
+    # Called when the user picks a suburb from the dropdown
+    def on_location(self, choice):
+        self.user_location = self.suburbs[choice]
+        self.update_list(self.search_var.get())    # reraw so distances show / update
 
     # Fill the details panel with one hospital's information
     def show_details(self, hospital):
