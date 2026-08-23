@@ -24,13 +24,14 @@ MEDIUM = 90   # under this many minutes = amber; otherwise red
 
 # A single hospital. Using a class instead of a dictionary means each hospital carries its own data and its own behaviour, like status_colour().
 class Hospital:
-    def __init__(self, name, wait, phone, kind, lat, lon):
+    def __init__(self, name, wait, phone, kind, lat, lon, patients):
         self.name = name
         self.wait = wait
         self.phone = phone
         self.kind = kind          # "Public" or "Private"
         self.lat = lat           
         self.lon = lon            
+        self.patients = patients
 
     # Work out this hospital's status colour from its own wait time
     def status_colour(self):
@@ -88,19 +89,19 @@ def load_hospitals(filename):
             continue
 
         parts = line.split(",")
-        if len(parts) != 6:                       # every line must have all 6 fields
-            print("Skipping bad line (need 6 fields):", line)
+        if len(parts) != 7:                       # every line must have all 7 fields
+            print("Skipping bad line (need 7 fields):", line)
             continue
 
         try:
             wait = int(parts[1])
             lat  = float(parts[4])                # coordinates are decimals, so float
-            lon  = float(parts[5])                
+            lon  = float(parts[5])
+            patients = int(parts[6])              
         except ValueError:                        # the wait time wasn't a number
             print("Skipping line with a bad wait time:", line)
             continue
-
-        hospitals.append(Hospital(parts[0], wait, parts[2], parts[3], lat, lon))
+        hospitals.append(Hospital(parts[0], wait, parts[2], parts[3], lat, lon, patients))
 
     file.close()
     return hospitals
@@ -246,7 +247,8 @@ class App:
     # Fill the details panel with one hospital's information
     def show_details(self, hospital):
         self.details_name.config(text=hospital.name)
-        self.details_info.config(text="Wait: " + str(hospital.wait) + " min\n"
+        self.details_info.config(text="Wait: " + str(hospital.wait) + " min (time from arrival to triage)\n"
+                                      + "Patients waiting: " + str(hospital.patients) + "\n"
                                       + "Phone: " + hospital.phone + "\n"
                                       + "Type: " + hospital.kind)
 
