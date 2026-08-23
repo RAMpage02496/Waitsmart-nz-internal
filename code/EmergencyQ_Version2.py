@@ -122,6 +122,7 @@ class App:
         self.selected_row = None
         self.search_var = tk.StringVar()
         self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
+        self.nearest_var = tk.BooleanVar()   # is "sort by nearest" ticked?
 
 
         self.build_ui()
@@ -145,6 +146,12 @@ class App:
                                     variable=self.sort_var, command=self.on_search,
                                     bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         sort_check.pack(anchor="w", padx=18)
+
+        # Nearest toggle
+        nearest_check = tk.Checkbutton(self.root, text="Sort by nearest first",
+                                       variable=self.nearest_var, command=self.on_search,
+                                       bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
+        nearest_check.pack(anchor="w", padx=18)
 
         # Location picker
         loc_frame = tk.Frame(self.root, bg=WHITE)
@@ -192,6 +199,9 @@ class App:
         matches = [h for h in self.hospitals if query in h.name.lower()]
         if self.sort_var.get():
             matches.sort(key=lambda h: h.wait,)
+        elif self.nearest_var.get() and self.user_location is not None: # only sorts if a suburb is piced
+            ulat, ulon = self.user_location
+            matches.sort(key=lambda h: distance_km(ulat, ulon, h.lat, h.lon))
         self.count_label.config(text="Showing " + str(len(matches)) + " hospitals")
 
         if len(matches) == 0:
