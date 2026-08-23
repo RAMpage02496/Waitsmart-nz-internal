@@ -6,6 +6,7 @@ import tkinter as tk
 import os   # lets us work out file paths
 import random   # for the live wait-time changes
 import math   # for the distance calculation
+from tkinter import messagebox   # for the emergency warning dialog
 
 # The folder THIS .py file lives in. We build the data-file path from here so
 # hospitals.txt is always found, no matter which folder the program is run from.
@@ -132,6 +133,15 @@ class App:
 
     # Build all the widgets
     def build_ui(self):
+        # Safety banner
+        banner = tk.Frame(self.root, bg="#FDECEA")
+        banner.pack(fill="x")
+        tk.Label(banner, text="For information only - not medical advice.",
+                 bg="#FDECEA", fg="#B02A1F", font=(FONT, 9)).pack(side="left", padx=10, pady=6)
+        tk.Button(banner, text="📞 Call 111", bg="#E03A2F", fg=WHITE, font=(FONT, 9, "bold"),
+                  relief="flat", command=self.call_111).pack(side="right", padx=10, pady=4)
+
+        # Title
         title = tk.Label(self.root, text="Emergency Q Prototype",
                          bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
         title.pack(pady=(18, 14))
@@ -251,6 +261,11 @@ class App:
                                       + "Patients waiting: " + str(hospital.patients) + "\n"
                                       + "Phone: " + hospital.phone + "\n"
                                       + "Type: " + hospital.kind)
+
+    def call_111(self):
+        messagebox.showwarning("Emergency",
+                               "If this is an emergency, call 111 now.\n\n"
+                               "This app shows estimated wait times only and is not medical advice.")
 
     # Highlight the clicked row and show its details
     def select_row(self, hospital, row):
