@@ -7,6 +7,7 @@ import os   # lets us work out file paths
 import random   # for the live wait-time changes
 import math   # for the distance calculation
 from tkinter import messagebox   # for the emergency warning dialog
+from datetime import datetime   # for the "last updated" time
 
 # The folder THIS .py file lives in. We build the data-file path from here so
 # hospitals.txt is always found, no matter which folder the program is run from.
@@ -183,6 +184,8 @@ class App:
         # Result count
         self.count_label = tk.Label(self.root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
         self.count_label.pack(anchor="w", padx=22, pady=(6, 2))
+        self.updated_label = tk.Label(self.root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 8, "italic"))
+        self.updated_label.pack(anchor="w", padx=22)
 
         # Colour legend (what the dots mean)
         legend = tk.Frame(self.root, bg=WHITE)
@@ -281,6 +284,7 @@ class App:
             h.wait = max(0, h.wait + random.randint(-6, 6))  # never below 0, drift the wait up or down a bit
         self.update_list(self.search_var.get())          # refresh the list with the new times
         self.root.after(3000, self.update_times)         # run again in 3 seconds
+        self.updated_label.config(text="Last updated: " + datetime.now().strftime("%H:%M:%S"))
 
     def run(self):
         self.root.mainloop()
