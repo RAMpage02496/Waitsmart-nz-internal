@@ -1,8 +1,8 @@
-Auckland City Hospital,45,09 367 0000,Public,-36.8607,174.7699
-Middlemore Hospital,120,09 276 0000,Public,-36.9614,174.8419
-North Shore Hospital,30,09 486 8900,Public,-36.7817,174.7590
-Waitakere Hospital,80,09 839 0000,Public,-36.8790,174.6310
-Starship Children's Hospital,15,09 367 0000,Public,-36.8600,174.7690
-Greenlane Clinical Centre,10,09 638 9909,Public,-36.8930,174.7920
-Southern Cross Hospital,5,09 623 8900,Private,-36.8760,174.7770
-Mercy Hospital Auckland,15,09 623 3456,Private,-36.8770,174.7720
+Auckland City Hospital,45,09 367 0000,Public,-36.8607,174.7699,22
+Middlemore Hospital,120,09 276 0000,Public,-36.9614,174.8419,38
+North Shore Hospital,30,09 486 8900,Public,-36.7817,174.7590,15
+Waitakere Hospital,80,09 839 0000,Public,-36.8790,174.6310,26
+Starship Children's Hospital,15,09 367 0000,Public,-36.8600,174.7690,8
+Greenlane Clinical Centre,10,09 638 9909,Public,-36.8930,174.7920,5
+Southern Cross Hospital,5,09 623 8900,Private,-36.8760,174.7770,3
+Mercy Hospital Auckland,15,09 623 3456,Private,-36.8770,174.7720,6

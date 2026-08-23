@@ -136,9 +136,13 @@ class App:
         title.pack(pady=(18, 14))
 
         # Search box
-        search_entry = tk.Entry(self.root, textvariable=self.search_var, font=(FONT, 11),
+        search_box = tk.Frame(self.root, bg="#F1F4F8")
+        search_box.pack(fill="x", padx=20, pady=(0, 6))
+        tk.Label(search_box, text="🔍", bg="#F1F4F8", fg="#6B7686",
+                 font=(FONT, 11)).pack(side="left", padx=(8, 0))
+        search_entry = tk.Entry(search_box, textvariable=self.search_var, font=(FONT, 11),
                                 bg="#F1F4F8", fg=INK, relief="flat")
-        search_entry.pack(fill="x", padx=20, pady=(0, 6), ipady=6)
+        search_entry.pack(side="left", fill="x", expand=True, padx=(4, 8), ipady=6)
         self.search_var.trace_add("write", self.on_search)
 
         # Sort toggle
