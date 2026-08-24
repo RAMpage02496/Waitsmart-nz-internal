@@ -2,12 +2,18 @@
 Emergency Q - Version 2
 """
 
+
+#  Imports: extra modules this program needs
 import tkinter as tk
 import os   # lets us work out file paths
 import random   # for the live wait-time changes
 import math   # for the distance calculation
 from tkinter import messagebox   # for the emergency warning dialog
 from datetime import datetime   # for the "last updated" time
+
+
+# Settings: constants used all through the program
+
 
 # The folder THIS .py file lives in. We build the data-file path from here so
 # hospitals.txt is always found, no matter which folder the program is run from.
@@ -26,6 +32,7 @@ MEDIUM = 90   # under this many minutes = amber; otherwise red
 
 # A single hospital. Using a class instead of a dictionary means each hospital carries its own data and its own behaviour, like status_colour().
 class Hospital:
+    # Method: store one hospital's details when it is created
     def __init__(self, name, wait, phone, kind, lat, lon, patients):
         self.name = name
         self.wait = wait
@@ -35,7 +42,7 @@ class Hospital:
         self.lon = lon            
         self.patients = patients
 
-    # Work out this hospital's status colour from its own wait time
+    # Method: Work out this hospital's status colour from its own wait time
     def status_colour(self):
         if self.wait < SHORT:
             return GREEN
@@ -44,7 +51,11 @@ class Hospital:
         else:
             return RED
 
-# Distance in km between two points on Earth, using their latitude/longitude (Haversine formula)
+
+#  Functions: standalone helpers (not tied to an object)
+
+
+# Function: Distance in km between two points on Earth, using their latitude/longitude (Haversine formula)
 def distance_km(lat1, lon1, lat2, lon2):
     R = 6371  # Earth's radius in km
     d_lat = math.radians(lat2 - lat1)
@@ -53,7 +64,7 @@ def distance_km(lat1, lon1, lat2, lon2):
          + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2)
     return R * 2 * math.asin(math.sqrt(a))
 
-# Read the suburbs file into a dictionary: {suburb name: (lat, lon)}
+# Function: Read the suburbs file into a dictionary: {suburb name: (lat, lon)}
 def load_suburbs(filename):
     suburbs = {}
     try:
@@ -75,7 +86,7 @@ def load_suburbs(filename):
     file.close()
     return suburbs
 
-# Read the data file and turn each line into a Hospital object, robust building so a missing file or a bad line won't crash the program (try and except, and skip bad lines).
+# Function: Read the data file and turn each line into a Hospital object, robust building so a missing file or a bad line won't crash the program (try and except, and skip bad lines).
 def load_hospitals(filename):
     hospitals = []
 
@@ -111,6 +122,7 @@ def load_hospitals(filename):
 
 # The whole application, wrapped in a class. Data and widgets live on self.
 class App:
+    # Method: set up the window, load the data, build the screen
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Emergency Q - Version 2")
@@ -132,7 +144,7 @@ class App:
         self.update_list()
         self.update_times()   # start the live wait-time updates
 
-    # Build all the widgets
+    # Method: create all the widgets (banner, search, list, details...)
     def build_ui(self):
         # Safety banner
         banner = tk.Frame(self.root, bg="#FDECEA")
@@ -205,7 +217,7 @@ class App:
                                      bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
         self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
-    # Show each hospital as a row in the list, optionally filtered by a search query
+    # Method: Show each hospital as a row in the list, optionally filtered by a search query
     def update_list(self, query=""):
         self.selected_row = None
         # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
@@ -248,16 +260,16 @@ class App:
             row.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
             label.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
 
-    # Re-filter the list every time the search text changes
+    # Method: Re-filter the list every time the search text changes
     def on_search(self, *args):
         self.update_list(self.search_var.get())
 
-    # Called when the user picks a suburb from the dropdown
+    # Method: Called when the user picks a suburb from the dropdown
     def on_location(self, choice):
         self.user_location = self.suburbs[choice]
         self.update_list(self.search_var.get())    # reraw so distances show / update
 
-    # Fill the details panel with one hospital's information
+    # Method: Fill the details panel with one hospital's information
     def show_details(self, hospital):
         self.details_name.config(text=hospital.name)
         self.details_info.config(text="Wait: " + str(hospital.wait) + " min (time from arrival to triage)\n"
@@ -265,12 +277,13 @@ class App:
                                       + "Phone: " + hospital.phone + "\n"
                                       + "Type: " + hospital.kind)
 
+    # Method: Call the emergency services
     def call_111(self):
         messagebox.showwarning("Emergency",
                                "If this is an emergency, call 111 now.\n\n"
                                "This app shows estimated wait times only and is not medical advice.")
 
-    # Highlight the clicked row and show its details
+    # Method: Highlight the clicked row and show its details
     def select_row(self, hospital, row):
         if self.selected_row is not None:
             self.selected_row.config(bg=WHITE)
@@ -278,7 +291,7 @@ class App:
         self.selected_row = row
         self.show_details(hospital)
 
-    # Every few seconds, nudge each hospital's wait a little to simulate a live feed
+    # Method: Every few seconds, nudge each hospital's wait a little to simulate a live feed
     def update_times(self):
         for h in self.hospitals:
             h.wait = max(0, h.wait + random.randint(-6, 6))  # never below 0, drift the wait up or down a bit
@@ -286,6 +299,7 @@ class App:
         self.root.after(3000, self.update_times)         # run again in 3 seconds
         self.updated_label.config(text="Last updated: " + datetime.now().strftime("%H:%M:%S"))
 
+    # Method: Start the Tkinter event loop
     def run(self):
         self.root.mainloop()
 
