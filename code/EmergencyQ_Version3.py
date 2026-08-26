@@ -10,6 +10,7 @@ import random   # for the live wait-time changes
 import math   # for the distance calculation
 from tkinter import messagebox   # for the emergency warning dialog
 from datetime import datetime   # for the "last updated" time
+import tkintermapview   # third-party library for the interactive map
 
 
 # Settings: constants used all through the program
@@ -126,7 +127,7 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Emergency Q - Version 3")
-        self.root.geometry("420x700")
+        self.root.geometry("420x880")
         self.root.configure(bg=WHITE)
 
         # Hospital data - loaded from the file instead of hard-coded
@@ -171,13 +172,13 @@ class App:
 
         # Sort toggle
         sort_check = tk.Checkbutton(self.root, text="Sort by shortest wait first",
-                                    variable=self.sort_var, command=self.on_search,
+                                    variable=self.sort_var, command=self.on_sort_wait,
                                     bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         sort_check.pack(anchor="w", padx=18)
 
         # Nearest toggle
         nearest_check = tk.Checkbutton(self.root, text="Sort by nearest first",
-                                       variable=self.nearest_var, command=self.on_search,
+                                       variable=self.nearest_var, command=self.on_sort_nearest,
                                        bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         nearest_check.pack(anchor="w", padx=18)
 
@@ -217,6 +218,12 @@ class App:
                                      bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
         self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
+        # Interactive map (tkintermapview) - centred on Auckland.
+        self.map_widget = tkintermapview.TkinterMapView(self.root, height=200, corner_radius=0)
+        self.map_widget.pack(fill="x", padx=20, pady=(10, 0))
+        self.map_widget.set_position(-36.8509, 174.7645)   # centre of Auckland
+        self.map_widget.set_zoom(10)
+
     # Method: draw the hospital list using whatever get_visible_hospitals() hands back
     def update_list(self, query=""):
         self.selected_row = None
@@ -255,6 +262,8 @@ class App:
 
     # Method: work out which hospitals to show (filter + sort). returns the data.
     def get_visible_hospitals(self, query):
+        # Lowercasing both sides makes the search case-insensitive, and "in" is a substring
+        # check, so "shore" matches "North Shore Hospital" even though it's not at the start.
         query = query.lower()
         matches = [h for h in self.hospitals if query in h.name.lower()]
         if self.sort_var.get():
@@ -264,44 +273,21 @@ class App:
             matches.sort(key=lambda h: distance_km(ulat, ulon, h.lat, h.lon))
         return matches
 
-        #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
-        query = query.lower()
-        matches = [h for h in self.hospitals if query in h.name.lower()]
-        if self.sort_var.get():
-            matches.sort(key=lambda h: h.wait,)
-        elif self.nearest_var.get() and self.user_location is not None: # only sorts if a suburb is piced
-            ulat, ulon = self.user_location
-            matches.sort(key=lambda h: distance_km(ulat, ulon, h.lat, h.lon))
-        self.count_label.config(text="Showing " + str(len(matches)) + " hospitals")
-
-        if len(matches) == 0:
-            empty = tk.Label(self.list_frame, text="No hospitals found",
-                             bg=WHITE, fg="#8A94A6", font=(FONT, 10, "italic"))
-            empty.pack(pady=20)
-            return
-
-        for h in matches:
-            row = tk.Frame(self.list_frame, bg=WHITE) #This frame exists purely as a container that defines a horizontal strip
-            row.pack(fill="x", pady=1) # Stretches the frame horizontally to fill all available width in its parent
-            label = tk.Label(row, text=h.name + " (" + h.kind + ")",
-                             bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
-            label.pack(side="left", padx=10, pady=6)
-            dot = tk.Label(row, text="●", bg=WHITE, fg=h.status_colour(), font=(FONT, 11))
-            dot.pack(side="right", padx=10)
-            wait_lbl = tk.Label(row, text=str(h.wait) + " min",
-                                bg=WHITE, fg="#6B7686", font=(FONT, 9))
-            wait_lbl.pack(side="right", padx=(0, 4))
-            if self.user_location is not None:
-                ulat, ulon = self.user_location
-                km = distance_km(ulat, ulon, h.lat, h.lon)
-                dist_lbl = tk.Label(row, text=str(round(km, 1)) + " km",
-                                    bg=WHITE, fg="#3A7BD5", font=(FONT, 9))
-                dist_lbl.pack(side="right", padx=(0, 4))
-            row.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
-            label.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
 
     # Method: Re-filter the list every time the search text changes
     def on_search(self, *args):
+        self.update_list(self.search_var.get())
+
+    # Method: when "shortest wait" is ticked, untick "nearest" so only one sort is active
+    def on_sort_wait(self):
+        if self.sort_var.get():
+            self.nearest_var.set(False)
+        self.update_list(self.search_var.get())
+
+    # Method: when "nearest" is ticked, untick "shortest wait" so only one sort is active
+    def on_sort_nearest(self):
+        if self.nearest_var.get():
+            self.sort_var.set(False)
         self.update_list(self.search_var.get())
 
     # Method: Called when the user picks a suburb from the dropdown

@@ -171,13 +171,13 @@ class App:
 
         # Sort toggle
         sort_check = tk.Checkbutton(self.root, text="Sort by shortest wait first",
-                                    variable=self.sort_var, command=self.on_sort_wait,
+                                    variable=self.sort_var, command=self.on_search,
                                     bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         sort_check.pack(anchor="w", padx=18)
 
         # Nearest toggle
         nearest_check = tk.Checkbutton(self.root, text="Sort by nearest first",
-                                       variable=self.nearest_var, command=self.on_sort_nearest,
+                                       variable=self.nearest_var, command=self.on_search,
                                        bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         nearest_check.pack(anchor="w", padx=18)
 
@@ -262,18 +262,6 @@ class App:
 
     # Method: Re-filter the list every time the search text changes
     def on_search(self, *args):
-        self.update_list(self.search_var.get())
-
-    # Method: when "shortest wait" is ticked, untick "nearest" so only one sort is active
-    def on_sort_wait(self):
-        if self.sort_var.get():
-            self.nearest_var.set(False)
-        self.update_list(self.search_var.get())
-
-    # Method: when "nearest" is ticked, untick "shortest wait" so only one sort is active
-    def on_sort_nearest(self):
-        if self.nearest_var.get():
-            self.sort_var.set(False)
         self.update_list(self.search_var.get())
 
     # Method: Called when the user picks a suburb from the dropdown
