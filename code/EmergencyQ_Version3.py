@@ -141,15 +141,35 @@ class App:
         self.nearest_var = tk.BooleanVar()   # is "sort by nearest" ticked?
 
 
-        self.build_ui()
-        self.place_map_markers()   # add: drop the coloured pins on the map
+        # Multi-page setup: a container holding three stacked page frames
+        self.container = tk.Frame(self.root, bg=WHITE)
+        self.container.pack(fill="both", expand=True)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
+
+        # The three pages all sit in the same grid cell; we raise one at a time.
+        self.search_page = tk.Frame(self.container, bg=WHITE)
+        self.map_page    = tk.Frame(self.container, bg=WHITE)
+        self.detail_page = tk.Frame(self.container, bg=WHITE)
+        for page in (self.search_page, self.map_page, self.detail_page):
+            page.grid(row=0, column=0, sticky="nsew")
+
+        self.build_search_page()   # fill the search page (everything lives here for now)
+        self.show_page("search")   # bring it to the front
+
+        self.place_map_markers()
         self.update_list()
-        self.update_times()   # start the live wait-time updates
+        self.update_times()
+
+    # Method: bring one page frame to the front
+    def show_page(self, name):
+        pages = {"search": self.search_page, "map": self.map_page, "detail": self.detail_page}
+        pages[name].tkraise()
 
     # Method: create all the widgets (banner, search, list, details...)
-    def build_ui(self):
+    def build_search_page(self):
         # Safety banner
-        banner = tk.Frame(self.root, bg="#FDECEA")
+        banner = tk.Frame(self.search_page, bg="#FDECEA")
         banner.pack(fill="x")
         tk.Label(banner, text="For information only - not medical advice.",
                  bg="#FDECEA", fg="#B02A1F", font=(FONT, 9)).pack(side="left", padx=10, pady=6)
@@ -157,12 +177,12 @@ class App:
                   relief="flat", command=self.call_111).pack(side="right", padx=10, pady=4)
 
         # Title
-        title = tk.Label(self.root, text="Emergency Q Prototype",
+        title = tk.Label(self.search_page, text="Emergency Q Prototype",
                          bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
         title.pack(pady=(18, 14))
 
         # Search box
-        search_box = tk.Frame(self.root, bg="#F1F4F8")
+        search_box = tk.Frame(self.search_page, bg="#F1F4F8")
         search_box.pack(fill="x", padx=20, pady=(0, 6))
         tk.Label(search_box, text="🔍", bg="#F1F4F8", fg="#6B7686",
                  font=(FONT, 11)).pack(side="left", padx=(8, 0))
@@ -172,19 +192,19 @@ class App:
         self.search_var.trace_add("write", self.on_search)
 
         # Sort toggle
-        sort_check = tk.Checkbutton(self.root, text="Sort by shortest wait first",
+        sort_check = tk.Checkbutton(self.search_page, text="Sort by shortest wait first",
                                     variable=self.sort_var, command=self.on_sort_wait,
                                     bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         sort_check.pack(anchor="w", padx=18)
 
         # Nearest toggle
-        nearest_check = tk.Checkbutton(self.root, text="Sort by nearest first",
+        nearest_check = tk.Checkbutton(self.search_page, text="Sort by nearest first",
                                        variable=self.nearest_var, command=self.on_sort_nearest,
                                        bg=WHITE, fg=INK, font=(FONT, 9), activebackground=WHITE)
         nearest_check.pack(anchor="w", padx=18)
 
         # Location picker
-        loc_frame = tk.Frame(self.root, bg=WHITE)
+        loc_frame = tk.Frame(self.search_page, bg=WHITE)
         loc_frame.pack(fill="x", padx=18, pady=(2, 0))
         tk.Label(loc_frame, text="Your suburb:", bg=WHITE, fg=INK, font=(FONT, 9)).pack(side="left")
         location_menu = tk.OptionMenu(loc_frame, self.location_var,
@@ -192,23 +212,23 @@ class App:
         location_menu.pack(side="left", padx=6)
 
         # Frame that will hold the list of hospitals
-        self.list_frame = tk.Frame(self.root, bg=WHITE)
+        self.list_frame = tk.Frame(self.search_page, bg=WHITE)
         self.list_frame.pack(fill="x", padx=20, pady=(10, 0))
 
         # Result count
-        self.count_label = tk.Label(self.root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
+        self.count_label = tk.Label(self.search_page, text="", bg=WHITE, fg="#6B7686", font=(FONT, 9, "italic"))
         self.count_label.pack(anchor="w", padx=22, pady=(6, 2))
-        self.updated_label = tk.Label(self.root, text="", bg=WHITE, fg="#6B7686", font=(FONT, 8, "italic"))
+        self.updated_label = tk.Label(self.search_page, text="", bg=WHITE, fg="#6B7686", font=(FONT, 8, "italic"))
         self.updated_label.pack(anchor="w", padx=22)
 
         # Colour legend (what the dots mean)
-        legend = tk.Frame(self.root, bg=WHITE)
+        legend = tk.Frame(self.search_page, bg=WHITE)
         legend.pack(fill="x", padx=20, pady=(4, 0))
         for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
             tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
 
         # Details panel (shows the selected hospital)
-        self.details_frame = tk.Frame(self.root, bg="#F1F4F8")
+        self.details_frame = tk.Frame(self.search_page, bg="#F1F4F8")
         self.details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
 
         self.details_name = tk.Label(self.details_frame, text="Select a hospital",
@@ -220,7 +240,7 @@ class App:
         self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
         # Interactive map (tkintermapview) - centred on Auckland.
-        self.map_widget = tkintermapview.TkinterMapView(self.root, height=240, corner_radius=0)
+        self.map_widget = tkintermapview.TkinterMapView(self.search_page, height=240, corner_radius=0)
         self.map_widget.pack(fill="x", padx=20, pady=(10, 0))
         self.map_widget.set_position(-36.8509, 174.7645)   # centre of Auckland
         self.map_widget.set_zoom(10)
@@ -231,7 +251,8 @@ class App:
             colour = h.status_colour()
             self.map_widget.set_marker(h.lat, h.lon,
                                        marker_color_circle=colour,
-                                       marker_color_outside=colour)
+                                       marker_color_outside=colour,
+                                       command=lambda marker, hosp=h: self.on_marker_click(hosp))
 
     # Method: draw the hospital list using whatever get_visible_hospitals() hands back
     def update_list(self, query=""):
@@ -311,6 +332,10 @@ class App:
                                       + "Patients waiting: " + str(hospital.patients) + "\n"
                                       + "Phone: " + hospital.phone + "\n"
                                       + "Type: " + hospital.kind)
+
+    # Method: called when a map pin is clicked - show that hospital's details
+    def on_marker_click(self, hospital):
+        self.show_details(hospital)
 
     # Method: Call the emergency services
     def call_111(self):
