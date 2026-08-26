@@ -217,12 +217,52 @@ class App:
                                      bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
         self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
-    # Method: Show each hospital as a row in the list, optionally filtered by a search query
+    # Method: draw the hospital list using whatever get_visible_hospitals() hands back
     def update_list(self, query=""):
         self.selected_row = None
-        # Remove the old rows before rebuilding. Without this, every keystroke would stack a new copy of the list underneath the old one.
+        # Remove the old rows before rebuilding
         for widget in self.list_frame.winfo_children():
             widget.destroy()
+
+        matches = self.get_visible_hospitals(query)   # ask the logic layer for the data
+        self.count_label.config(text="Showing " + str(len(matches)) + " hospitals")
+
+        if len(matches) == 0:
+            empty = tk.Label(self.list_frame, text="No hospitals found",
+                             bg=WHITE, fg="#8A94A6", font=(FONT, 10, "italic"))
+            empty.pack(pady=20)
+            return
+
+        for h in matches:
+            row = tk.Frame(self.list_frame, bg=WHITE)
+            row.pack(fill="x", pady=1)
+            label = tk.Label(row, text=h.name + " (" + h.kind + ")",
+                             bg=WHITE, fg=INK, font=(FONT, 10), anchor="w")
+            label.pack(side="left", padx=10, pady=6)
+            dot = tk.Label(row, text="●", bg=WHITE, fg=h.status_colour(), font=(FONT, 11))
+            dot.pack(side="right", padx=10)
+            wait_lbl = tk.Label(row, text=str(h.wait) + " min",
+                                bg=WHITE, fg="#6B7686", font=(FONT, 9))
+            wait_lbl.pack(side="right", padx=(0, 4))
+            if self.user_location is not None:
+                ulat, ulon = self.user_location
+                km = distance_km(ulat, ulon, h.lat, h.lon)
+                dist_lbl = tk.Label(row, text=str(round(km, 1)) + " km",
+                                    bg=WHITE, fg="#3A7BD5", font=(FONT, 9))
+                dist_lbl.pack(side="right", padx=(0, 4))
+            row.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
+            label.bind("<Button-1>", lambda event, hosp=h, r=row: self.select_row(hosp, r))
+
+    # Method: work out which hospitals to show (filter + sort). returns the data.
+    def get_visible_hospitals(self, query):
+        query = query.lower()
+        matches = [h for h in self.hospitals if query in h.name.lower()]
+        if self.sort_var.get():
+            matches.sort(key=lambda h: h.wait)
+        elif self.nearest_var.get() and self.user_location is not None:
+            ulat, ulon = self.user_location
+            matches.sort(key=lambda h: distance_km(ulat, ulon, h.lat, h.lon))
+        return matches
 
         #Lowercasing both sides makes the search case-insensitive, and "in" on strings is a substring check, so "shore" matches "North Shore Hospital" even though it's not at the start.
         query = query.lower()
