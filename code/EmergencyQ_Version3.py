@@ -124,6 +124,7 @@ def load_hospitals(filename):
 # The whole application, wrapped in a class. Data and widgets live on self.
 class App:
     # Method: set up the window, load the data, build the screen
+    # Method: set up the window, load the data, build the screen
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Emergency Q - Version 3")
@@ -140,7 +141,6 @@ class App:
         self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
         self.nearest_var = tk.BooleanVar()   # is "sort by nearest" ticked?
 
-
         # Multi-page setup: a container holding three stacked page frames
         self.container = tk.Frame(self.root, bg=WHITE)
         self.container.pack(fill="both", expand=True)
@@ -154,12 +154,21 @@ class App:
         for page in (self.search_page, self.map_page, self.detail_page):
             page.grid(row=0, column=0, sticky="nsew")
 
-        self.build_search_page()   # fill the search page (everything lives here for now)
-        self.show_page("search")   # bring it to the front
-
+        self.build_search_page()   # fill the search page
+        self.build_map_page()      # fill the map page
+        self.show_page("search")   # bring the search page to the front
         self.place_map_markers()
         self.update_list()
         self.update_times()
+
+    # Method: add the safety banner (disclaimer + 111) to any page (reused on every page)
+    def build_banner(self, parent):
+        banner = tk.Frame(parent, bg="#FDECEA")
+        banner.pack(fill="x")
+        tk.Label(banner, text="For information only - not medical advice.",
+                 bg="#FDECEA", fg="#B02A1F", font=(FONT, 9)).pack(side="left", padx=10, pady=6)
+        tk.Button(banner, text="📞 Call 111", bg="#E03A2F", fg=WHITE, font=(FONT, 9, "bold"),
+                  relief="flat", command=self.call_111).pack(side="right", padx=10, pady=4)
 
     # Method: bring one page frame to the front
     def show_page(self, name):
@@ -169,12 +178,7 @@ class App:
     # Method: create all the widgets (banner, search, list, details...)
     def build_search_page(self):
         # Safety banner
-        banner = tk.Frame(self.search_page, bg="#FDECEA")
-        banner.pack(fill="x")
-        tk.Label(banner, text="For information only - not medical advice.",
-                 bg="#FDECEA", fg="#B02A1F", font=(FONT, 9)).pack(side="left", padx=10, pady=6)
-        tk.Button(banner, text="📞 Call 111", bg="#E03A2F", fg=WHITE, font=(FONT, 9, "bold"),
-                  relief="flat", command=self.call_111).pack(side="right", padx=10, pady=4)
+        self.build_banner(self.search_page)
 
         # Title
         title = tk.Label(self.search_page, text="Emergency Q Prototype",
@@ -227,6 +231,11 @@ class App:
         for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
             tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
 
+        # Button to open the map page
+        map_btn = tk.Button(self.search_page, text="🗺  View map", command=lambda: self.show_page("map"),
+                            bg="#3A7BD5", fg=WHITE, font=(FONT, 11, "bold"), relief="flat")
+        map_btn.pack(fill="x", padx=20, pady=(12, 0))
+
         # Details panel (shows the selected hospital)
         self.details_frame = tk.Frame(self.search_page, bg="#F1F4F8")
         self.details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
@@ -239,12 +248,6 @@ class App:
                                      bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
         self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
 
-        # Interactive map (tkintermapview) - centred on Auckland.
-        self.map_widget = tkintermapview.TkinterMapView(self.search_page, height=240, corner_radius=0)
-        self.map_widget.pack(fill="x", padx=20, pady=(10, 0))
-        self.map_widget.set_position(-36.8509, 174.7645)   # centre of Auckland
-        self.map_widget.set_zoom(10)
-
     # Method: put a colour-coded pin on the map for each hospital (green/amber/red by wait)
     def place_map_markers(self):
         for h in self.hospitals:
@@ -253,6 +256,27 @@ class App:
                                        marker_color_circle=colour,
                                        marker_color_outside=colour,
                                        command=lambda marker, hosp=h: self.on_marker_click(hosp))
+
+        # Method: build the map page (banner + back button + the map with pins)
+    def build_map_page(self):
+        self.build_banner(self.map_page)
+
+        back = tk.Button(self.map_page, text="← Back", command=lambda: self.show_page("search"),
+                         bg="#F1F4F8", fg=INK, font=(FONT, 10), relief="flat")
+        back.pack(anchor="w", padx=18, pady=(10, 4))
+
+        tk.Label(self.map_page, text="Hospital Map", bg=WHITE, fg=INK,
+                 font=(FONT, 14, "bold")).pack(pady=(0, 10))
+
+        self.map_widget = tkintermapview.TkinterMapView(self.map_page, height=380, corner_radius=0)
+        self.map_widget.pack(fill="both", expand=True, padx=20, pady=(0, 10))
+        self.map_widget.set_position(-36.8509, 174.7645)
+        self.map_widget.set_zoom(10)
+
+        legend = tk.Frame(self.map_page, bg=WHITE)
+        legend.pack(fill="x", padx=20, pady=(0, 12))
+        for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
+            tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
 
     # Method: draw the hospital list using whatever get_visible_hospitals() hands back
     def update_list(self, query=""):
