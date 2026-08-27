@@ -390,7 +390,15 @@ class App:
     # Method: Called when the user picks a suburb from the dropdown
     def on_location(self, choice):
         self.user_location = self.suburbs[choice]
-        self.update_list(self.search_var.get())    # reraw so distances show / update
+        self.update_list(self.search_var.get())    # redraw so distances show / update
+        # drop a distinct blue "you are here" pin on the map and centre on it
+        ulat, ulon = self.user_location
+        if self.user_marker is not None:
+            self.user_marker.delete()
+        self.user_marker = self.map_widget.set_marker(ulat, ulon, text=choice,
+                                                       marker_color_circle="#3A7BD5",
+                                                       marker_color_outside="#1F4C8A")
+        self.map_widget.set_position(ulat, ulon)
 
     # Method: Fill the details panel with one hospital's information
     def show_details(self, hospital):
