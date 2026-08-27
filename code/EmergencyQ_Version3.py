@@ -140,6 +140,7 @@ class App:
         self.search_var = tk.StringVar()
         self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
         self.nearest_var = tk.BooleanVar()   # is "sort by nearest" ticked?
+        self.previous_page = "search"   # so the detail page's back knows where to return
 
         # Multi-page setup: a container holding three stacked page frames
         self.container = tk.Frame(self.root, bg=WHITE)
@@ -156,6 +157,7 @@ class App:
 
         self.build_search_page()   # fill the search page
         self.build_map_page()      # fill the map page
+        self.build_detail_page()
         self.show_page("search")   # bring the search page to the front
         self.place_map_markers()
         self.update_list()
@@ -236,17 +238,13 @@ class App:
                             bg="#3A7BD5", fg=WHITE, font=(FONT, 11, "bold"), relief="flat")
         map_btn.pack(fill="x", padx=20, pady=(12, 0))
 
-        # Details panel (shows the selected hospital)
-        self.details_frame = tk.Frame(self.search_page, bg="#F1F4F8")
-        self.details_frame.pack(fill="x", side="bottom", padx=20, pady=20)
-
-        self.details_name = tk.Label(self.details_frame, text="Select a hospital",
-                                     bg="#F1F4F8", fg=INK, font=(FONT, 12, "bold"))
-        self.details_name.pack(anchor="w", padx=12, pady=(12, 2))
-
-        self.details_info = tk.Label(self.details_frame, text="",
-                                     bg="#F1F4F8", fg=INK, font=(FONT, 10), justify="left")
-        self.details_info.pack(anchor="w", padx=12, pady=(0, 12))
+        # FAQs
+        tk.Label(self.search_page, text="FAQs", bg=WHITE, fg=INK,
+                 font=(FONT, 11, "bold")).pack(anchor="w", padx=20, pady=(16, 4))
+        self.build_faq(self.search_page, "What is a medical emergency?",
+                       "Chest pain, trouble breathing, severe bleeding, or a serious injury. If in doubt, call 111.")
+        self.build_faq(self.search_page, "What is NOT an emergency?",
+                       "Minor cuts, colds or the flu, and small sprains. For these, see your GP or an urgent care clinic.")
 
     # Method: put a colour-coded pin on the map for each hospital (green/amber/red by wait)
     def place_map_markers(self):
@@ -277,6 +275,40 @@ class App:
         legend.pack(fill="x", padx=20, pady=(0, 12))
         for text, colour in [("Short wait", GREEN), ("Medium", AMBER), ("Long wait", RED)]:
             tk.Label(legend, text="● " + text, bg=WHITE, fg=colour, font=(FONT, 9)).pack(side="left", padx=(0, 12))
+
+    # Method: build the hospital detail page (banner + back button + the details)
+    def build_detail_page(self):
+        self.build_banner(self.detail_page)
+
+        back = tk.Button(self.detail_page, text="← Back", command=lambda: self.show_page(self.previous_page),
+                         bg="#F1F4F8", fg=INK, font=(FONT, 10), relief="flat")
+        back.pack(anchor="w", padx=18, pady=(10, 4))
+
+        self.details_name = tk.Label(self.detail_page, text="Select a hospital",
+                                     bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
+        self.details_name.pack(anchor="w", padx=20, pady=(10, 6))
+
+        self.details_info = tk.Label(self.detail_page, text="",
+                                     bg=WHITE, fg=INK, font=(FONT, 11), justify="left")
+        self.details_info.pack(anchor="w", padx=20, pady=(0, 12))
+
+    # Method: add one collapsible FAQ item - click the question to show/hide the answer
+    def build_faq(self, parent, question, answer):
+        faq = tk.Frame(parent, bg=WHITE)
+        faq.pack(fill="x", padx=20, pady=(6, 0))
+
+        answer_lbl = tk.Label(faq, text=answer, bg=WHITE, fg="#6B7686",
+                              font=(FONT, 9), justify="left", wraplength=360)
+
+        def toggle():
+            if answer_lbl.winfo_manager():      # "" when hidden, "pack" when shown
+                answer_lbl.pack_forget()
+            else:
+                answer_lbl.pack(anchor="w", pady=(2, 0))
+
+        tk.Button(faq, text="▸  " + question, command=toggle,
+                  bg="#F1F4F8", fg=INK, font=(FONT, 10, "bold"),
+                  relief="flat", anchor="w").pack(fill="x")
 
     # Method: draw the hospital list using whatever get_visible_hospitals() hands back
     def update_list(self, query=""):
@@ -360,6 +392,8 @@ class App:
     # Method: called when a map pin is clicked - show that hospital's details
     def on_marker_click(self, hospital):
         self.show_details(hospital)
+        self.previous_page = "map"
+        self.show_page("detail")
 
     # Method: Call the emergency services
     def call_111(self):
@@ -374,6 +408,8 @@ class App:
         row.config(bg="#DCE6F5")
         self.selected_row = row
         self.show_details(hospital)
+        self.previous_page = "search"
+        self.show_page("detail")
 
     # Method: Every few seconds, nudge each hospital's wait a little to simulate a live feed
     def update_times(self):
