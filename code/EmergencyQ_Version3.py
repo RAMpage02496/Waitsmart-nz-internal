@@ -141,6 +141,8 @@ class App:
         self.sort_var = tk.BooleanVar()   # is "sort by shortest wait" ticked?
         self.nearest_var = tk.BooleanVar()   # is "sort by nearest" ticked?
         self.previous_page = "search"   # so the detail page's back knows where to return
+        self.hospital_markers = []   # keep the pins so we can recolour them live
+        self.user_marker = None      # the pin for the user's chosen suburb (Commit 8)
 
         # Multi-page setup: a container holding three stacked page frames
         self.container = tk.Frame(self.root, bg=WHITE)
@@ -248,12 +250,17 @@ class App:
 
     # Method: put a colour-coded pin on the map for each hospital (green/amber/red by wait)
     def place_map_markers(self):
+        # remove any existing pins first so live updates can redraw them in the new colours
+        for marker in self.hospital_markers:
+            marker.delete()
+        self.hospital_markers = []
         for h in self.hospitals:
             colour = h.status_colour()
-            self.map_widget.set_marker(h.lat, h.lon,
-                                       marker_color_circle=colour,
-                                       marker_color_outside=colour,
-                                       command=lambda marker, hosp=h: self.on_marker_click(hosp))
+            marker = self.map_widget.set_marker(h.lat, h.lon,
+                                                marker_color_circle=colour,
+                                                marker_color_outside=colour,
+                                                command=lambda marker, hosp=h: self.on_marker_click(hosp))
+            self.hospital_markers.append(marker)
 
         # Method: build the map page (banner + back button + the map with pins)
     def build_map_page(self):
@@ -286,11 +293,15 @@ class App:
 
         self.details_name = tk.Label(self.detail_page, text="Select a hospital",
                                      bg=WHITE, fg=INK, font=(FONT, 16, "bold"))
-        self.details_name.pack(anchor="w", padx=20, pady=(10, 6))
+        self.details_name.pack(anchor="w", padx=20, pady=(10, 2))
+
+        # Big colour-coded wait time - the hero of the page
+        self.details_wait = tk.Label(self.detail_page, text="", bg=WHITE, font=(FONT, 30, "bold"))
+        self.details_wait.pack(anchor="w", padx=20)
 
         self.details_info = tk.Label(self.detail_page, text="",
                                      bg=WHITE, fg=INK, font=(FONT, 11), justify="left")
-        self.details_info.pack(anchor="w", padx=20, pady=(0, 12))
+        self.details_info.pack(anchor="w", padx=20, pady=(6, 12))
 
     # Method: add one collapsible FAQ item - click the question to show/hide the answer
     def build_faq(self, parent, question, answer):
@@ -384,7 +395,8 @@ class App:
     # Method: Fill the details panel with one hospital's information
     def show_details(self, hospital):
         self.details_name.config(text=hospital.name)
-        self.details_info.config(text="Wait: " + str(hospital.wait) + " min (time from arrival to triage)\n"
+        self.details_wait.config(text=str(hospital.wait) + " min", fg=hospital.status_colour())
+        self.details_info.config(text="(time from arrival to triage)\n"
                                       + "Patients waiting: " + str(hospital.patients) + "\n"
                                       + "Phone: " + hospital.phone + "\n"
                                       + "Type: " + hospital.kind)
@@ -416,6 +428,7 @@ class App:
         for h in self.hospitals:
             h.wait = max(0, h.wait + random.randint(-6, 6))  # never below 0, drift the wait up or down a bit
         self.update_list(self.search_var.get())          # refresh the list with the new times
+        self.place_map_markers()                         # recolour the pins so they match the new times
         self.root.after(3000, self.update_times)         # run again in 3 seconds
         self.updated_label.config(text="Last updated: " + datetime.now().strftime("%H:%M:%S"))
 
